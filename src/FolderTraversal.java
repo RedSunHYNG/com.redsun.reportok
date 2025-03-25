@@ -15,6 +15,7 @@ import javax.swing.*;
 
     /*
      * @auther redsun_gxy
+     * @version .3
      */
 public class FolderTraversal {
     // 主报告名
@@ -41,8 +42,6 @@ public class FolderTraversal {
 
     private static FileHandler fileHandler;
 
-    private static final String LOG_DIR = "./";
-
     private static final String LOG_FILE_NAME = DateTime.replaceAll("[:/]", "-") + ".log";
 
     static {
@@ -50,7 +49,7 @@ public class FolderTraversal {
             logger.removeHandler(handler);
         }
         try {
-            fileHandler = new FileHandler(LOG_DIR + LOG_FILE_NAME, true);
+            fileHandler = new FileHandler( "./" + LOG_FILE_NAME, true);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
             logger.setLevel(Level.ALL);
@@ -60,9 +59,10 @@ public class FolderTraversal {
         }
     }
     public static void main(String[] args){
-        System.out.println("本工具仅用于XTS系列中报告Fail项的审查。");
+        System.out.println("本工具仅用于XTS系列中报告的审查。");
         try (Scanner sc = new Scanner(System.in)) {
             while (true) {
+                System.out.println("-----------------------------------");
                 System.out.println("输入Y继续检测报告。");
                 String choose = sc.next();
                 if(choose.equals("Y") || choose.equals("y")){
@@ -94,19 +94,19 @@ public class FolderTraversal {
     }
     
     public static void run() throws IOException {
-        System.out.println("选择主报告所在目录");
+        System.out.println("选择主报告的目录。");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int returnVal = fileChooser.showOpenDialog(null);
         String filePath = "";
         if(returnVal == JFileChooser.APPROVE_OPTION){       
             filePath= fileChooser.getSelectedFile().getAbsolutePath();
         }else{
-            System.out.println("未选择文件。");
+            System.out.println("未选择文件，检查已终止。");
             return;
         }
         
         if (filePath == null || filePath.isEmpty())  {
-            System.out.println("路径无效");
+            System.out.println("路径无效，检查已终止。");
             return;
         }
         int lastIndex = filePath.lastIndexOf('\\');
@@ -137,7 +137,6 @@ public class FolderTraversal {
         for(int n = 0 ; n  < all_url.size(); n++){
             String url = all_url.get(n);
             // DEV-System.out.println(url);
-
             if(url.contains(main_report_name+"\\test_result_failures_suite.html")) {
                 if (dev) {
                     System.out.println(url);
@@ -175,7 +174,6 @@ public class FolderTraversal {
                             int startIndex = add.indexOf("\">") + 2;
                             if (startIndex == -1) {
                                 System.out.println("错误汇入的case:"+add);
-                                //return null; // 或者抛出一个异常，表示没有找到开始标记
                             }
                             now_module = add.substring(startIndex);
                         }
@@ -186,8 +184,6 @@ public class FolderTraversal {
                             // 组合模块与用例添加进相应的list
                             main_report.add(now_module+" "+now_case);
                         }
-                        //未运行的模块
-                        // DEV-缺少资料
                         if(add.contains("IncompleteModules")){
                             now_type = 1;
                         }
@@ -197,7 +193,6 @@ public class FolderTraversal {
                             int startIndex = add.indexOf("\">") + 2;
                             if (startIndex == -1) {
                                 System.out.println("错误汇入的case:"+add);
-                                //return null; // 或者抛出一个异常，表示没有找到开始标记
                             }
                             main_report_module.add(add.substring(startIndex));
                         }
@@ -305,26 +300,26 @@ public class FolderTraversal {
                 main_report_tell.add(item);
             }
         }
-        logger.log(Level.INFO, "副报告多出的fail条列:");
-        System.out.println("副报告多出的fail条列:"+other_report_fail_tell.size());
+        logger.log(Level.INFO, "副报告多出的失败条列:");
+        System.out.println("副报告多出的失败条列:"+other_report_fail_tell.size());
         for (String item : other_report_fail_tell) {
             logger.log(Level.INFO, item);
             System.out.println(item);
         }
         System.out.println("  ");
-        logger.log(Level.INFO, "无法确定未完整运行的模块是否完全PASS。");
-        System.out.println("无法确定未完整运行的模块是否完全PASS。");
+        logger.log(Level.INFO, "无法确定未完整运行的模块是否完全通过。");
+        System.out.println("无法确定未完整运行的模块是否完全通过。");
         logger.log(Level.INFO, "需要手动查看");
         System.out.println("需要手动查看");
-        logger.log(Level.INFO, "主报告未运行的模块条例:");
-        System.out.println("主报告未运行的模块条例:"+main_report_module.size());
+        logger.log(Level.INFO, "主报告未完整运行的模块条例:");
+        System.out.println("主报告未完整运行的模块条例:"+main_report_module.size());
         for (String item : main_report_module) {
             logger.log(Level.INFO, item);
             System.out.println(item);
         }
         System.out.println("  ");
-        logger.log(Level.INFO, "主报告遗漏的fail条例:");
-        System.out.println("主报告遗漏的fail条例:"+main_report_tell.size());
+        logger.log(Level.INFO, "主报告遗漏的失败条例:");
+        System.out.println("主报告遗漏的失败条例:"+main_report_tell.size());
         for (String item : main_report_tell) {
             logger.log(Level.INFO, item);
             System.out.println(item);
